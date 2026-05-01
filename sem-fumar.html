@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sem Fumar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Syne', sans-serif;
+    padding: 16px;
+  }
+
+  .card {
+    background: #1a1f2e;
+    border: 1px solid #2a3045;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .day-count {
+    font-size: 56px;
+    font-weight: 800;
+    color: #1fcc8a;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -2px;
+  }
+
+  .header-text .label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e8eaf0;
+    letter-spacing: 0.02em;
+  }
+
+  .header-text .sublabel {
+    font-size: 12px;
+    color: #5a6282;
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .progress-section {
+    margin-bottom: 20px;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #5a6282;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+  }
+
+  .progress-meta .pct {
+    color: #1fcc8a;
+    font-weight: 700;
+  }
+
+  .bar-track {
+    background: #242a3d;
+    border-radius: 99px;
+    height: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #0fa86a, #1fcc8a, #4dffc4);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 0 12px rgba(31,204,138,0.4);
+  }
+
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4dffc4;
+    box-shadow: 0 0 10px rgba(77,255,196,0.8);
+  }
+
+  .milestones {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .milestone-tick {
+    font-size: 10px;
+    color: #3a4260;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+  }
+
+  .milestone-tick.reached {
+    color: #1fcc8a;
+  }
+
+  .badges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .badge {
+    background: #242a3d;
+    border: 1px solid #2a3045;
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .badge.unlocked {
+    border-color: #1fcc8a;
+    background: #0d2419;
+  }
+
+  .badge-icon {
+    font-size: 20px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .badge-days {
+    font-size: 11px;
+    font-weight: 700;
+    color: #e8eaf0;
+    font-family: 'JetBrains Mono', monospace;
+    display: block;
+  }
+
+  .badge.unlocked .badge-days {
+    color: #1fcc8a;
+  }
+
+  .badge-label {
+    font-size: 9px;
+    color: #5a6282;
+    display: block;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  .badge.unlocked .badge-label {
+    color: #4dffc4;
+  }
+
+  .quote-box {
+    background: #0d1420;
+    border-left: 3px solid #1fcc8a;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 14px;
+  }
+
+  .quote-text {
+    font-size: 12px;
+    color: #8090b0;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="day-count" id="dayCount">0</div>
+    <div class="header-text">
+      <div class="label">🚭 dias sem fumar</div>
+      <div class="sublabel" id="startLabel">desde 29 de abril de 2026</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-meta">
+      <span>progresso → 90 dias</span>
+      <span class="pct" id="pctLabel">0%</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" id="barFill" style="width: 0%"></div>
+    </div>
+    <div class="milestones">
+      <span class="milestone-tick" id="m0">0</span>
+      <span class="milestone-tick" id="m7">7</span>
+      <span class="milestone-tick" id="m30">30</span>
+      <span class="milestone-tick" id="m90">90</span>
+    </div>
+  </div>
+
+  <div class="badges">
+    <div class="badge" id="b7">
+      <span class="badge-icon">🔥</span>
+      <span class="badge-days">7 dias</span>
+      <span class="badge-label">fissura física reduz</span>
+    </div>
+    <div class="badge" id="b30">
+      <span class="badge-icon">🫁</span>
+      <span class="badge-days">30 dias</span>
+      <span class="badge-label">pulmões se recuperam</span>
+    </div>
+    <div class="badge" id="b90">
+      <span class="badge-icon">🦁</span>
+      <span class="badge-days">90 dias</span>
+      <span class="badge-label">hábito quebrado</span>
+    </div>
+  </div>
+
+  <div class="quote-box">
+    <div class="quote-text" id="quoteText"></div>
+  </div>
+</div>
+
+<script>
+  const START_DATE = new Date('2026-04-29');
+  const GOAL = 90;
+
+  const quotes = [
+    "A vontade de fumar dura 3 minutos. Você é mais longo que isso.",
+    "Cada dia é uma vitória que o hábito não esperava.",
+    "O bandolim toca melhor com pulmão livre.",
+    "Não é força de vontade — é identidade. Você não é mais um fumante.",
+    "Disciplina é liberdade adiada. Você já escolheu.",
+    "Seu corpo começou a se curar na primeira hora. Não para desde então."
+  ];
+
+  function update() {
+    const now = new Date();
+    const diff = Math.floor((now - START_DATE) / (1000 * 60 * 60 * 24)) + 1;
+    const days = Math.max(1, diff);
+    const pct = Math.min((days / GOAL) * 100, 100);
+
+    document.getElementById('dayCount').textContent = days;
+    document.getElementById('pctLabel').textContent = Math.round(pct) + '%';
+    document.getElementById('barFill').style.width = Math.max(pct, 1.5) + '%';
+
+    // Milestones
+    if (days >= 7) document.getElementById('m7').classList.add('reached');
+    if (days >= 30) document.getElementById('m30').classList.add('reached');
+    if (days >= 90) document.getElementById('m90').classList.add('reached');
+
+    // Badges
+    if (days >= 7) document.getElementById('b7').classList.add('unlocked');
+    if (days >= 30) document.getElementById('b30').classList.add('unlocked');
+    if (days >= 90) document.getElementById('b90').classList.add('unlocked');
+
+    // Quote
+    const q = quotes[days % quotes.length];
+    document.getElementById('quoteText').textContent = '"' + q + '"';
+  }
+
+  update();
+</script>
+</body>
+</html>
